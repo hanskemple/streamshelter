@@ -1625,6 +1625,20 @@
             });
 
             // --- 9. INITIALIZATION ---
+
+            // --- Global Key Press Listener for Escape ---
+            document.addEventListener('keydown', (e) => {
+                // Check if a modal is currently open
+                const isModalOpen = !modalContainer.classList.contains('hidden');
+
+                if (isModalOpen && e.key === 'Escape') {
+                    e.preventDefault(); // Prevent any default browser behavior
+                    closeModal();
+                }
+            });
+
+            // --- 9. INITIALIZATION ---
+            // ... rest of the code
             state.isLoading = true;
             render(); // Render login screen
             state.isLoading = false;
