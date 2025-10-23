@@ -14,11 +14,34 @@
         }
         
         /* Ensure inputs/selects in dark mode are styled correctly by default */
-        select, input[type="text"], input[type="date"], input[type="password"], textarea {
-            appearance: none;
-            -webkit-appearance: none;
+        select, input[type="text"], input[type="date"], input[type="password"], textarea, input[type="radio"] {
             -moz-appearance: none;
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #262626; /* bg-neutral-800 or 900 */
+            border-color: #404040; /* border-neutral-700 */
+            color: #e5e5e5; /* text-neutral-200 */
         }
+        
+        input[type="radio"] {
+            border-radius: 100%;
+            width: 1.15em;
+            height: 1.15em;
+            border: 1px solid #525252; /* border-neutral-600 */
+            transition: all 0.1s;
+        }
+        
+        input[type="radio"]:checked {
+            background-color: #3b82f6; /* bg-blue-600 */
+            border-color: #3b82f6; /* border-blue-600 */
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+        }
+        
+        input[type="radio"]:focus {
+             box-shadow: 0 0 0 2px #171717, 0 0 0 4px #3b82f6; /* focus:ring-2 focus:ring-offset-2 */
+             outline: none;
+        }
+
     </style>
 </head>
 <body>
@@ -58,6 +81,24 @@
               { name: 'Emily White', dob: '1990-12-24', gender: 'Female', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Emergency Shelter', roomNumber: 'F-104' },
               { name: 'Daniel Jackson', dob: '1982-02-11', gender: 'Male', race: 'Black or African American', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Other', roomNumber: 'M-105' },
               { name: 'Olivia Martinez', dob: '1998-08-08', gender: 'Female', race: 'White', ethnicity: 'Hispanic or Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-105' }
+            ];
+
+            // --- VI-SPDAT QUESTIONS (BASIC) ---
+            const SPDAT_QUESTIONS = [
+                { id: 'h1', domain: 'History', text: 'Has been homeless for 12+ months (chronically homeless)?', score: 1 },
+                { id: 'h2', domain: 'History', text: 'Experienced 4+ episodes of homelessness in the last 3 years?', score: 1 },
+                { id: 'h3', domain: 'History', text: 'Is this the first time you\'ve been homeless?', score: 0 }, // Note: 'Yes' here is 0 points
+                { id: 'r1', domain: 'Risks', text: 'At risk of harm in current living situation?', score: 1 },
+                { id: 'r2', domain: 'Risks', text: 'Has been attacked since becoming homeless?', score: 1 },
+                { id: 'r3', domain: 'Risks', text: 'Has had to trade sex for a place to sleep?', score: 1 },
+                { id: 's1', domain: 'Social', text: 'Are you currently in a relationship?', score: 0 },
+                { id: 's2', domain: 'Social', text: 'Do you have any friends or family for support?', score: 0 },
+                { id: 'w1', domain: 'Wellness', text: 'Does client have a serious mental health condition?', score: 1 },
+                { id: 'w2', domain: 'Wellness', text: 'Does client have a physical disability?', score: 1 },
+                { id: 'w3', domain: 'Wellness', text: 'Does client have a substance use issue?', score: 1 },
+                { id: 'w4', domain: 'Wellness', text: 'Has client been to the ER 3+ times in the last 6 months?', score: 1 },
+                { id: 'w5', domain: 'Wellness', text: 'Is client currently pregnant?', score: 1 },
+                { id: 'w6', domain: 'Wellness', text: 'Is client over the age of 60?', score: 1 },
             ];
 
             /**
@@ -106,6 +147,7 @@
                         checkInHistory: [],
                         caseNotes: [],
                         goals: [],
+                        viSpdatHistory: [], // <-- ADDED
                         createdAt: now,
                         updatedAt: now,
                         createdBy: username,
@@ -148,6 +190,8 @@
             const IconFlag = (props = {}) => Icon({ ...props, path: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" x2="4" y1="22" y2="15" />' });
             const IconChevronDown = (props = {}) => Icon({ ...props, path: '<polyline points="6 9 12 15 18 9" />' });
             const IconChevronRight = (props = {}) => Icon({ ...props, path: '<polyline points="9 18 15 12 9 6" />' });
+            const IconClipboardList = (props = {}) => Icon({ ...props, path: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><line x1="12" x2="12" y1="11" y2="17" /><line x1="9" x2="15" y1="14" y2="14" />' });
+
 
             // --- 4. UI PRIMITIVES (HTML String Functions) ---
 
@@ -232,7 +276,6 @@
                 ).map(opt => `<option value="${opt.value}" ${opt.selected ? 'selected' : ''}>${opt.label}</option>`).join('');
             }
 
-
             function FormTextarea({ label, name, value = '', placeholder = '', required = false, rows = 3, otherAttrs = '' }) {
                 return `
                 <div>
@@ -249,6 +292,30 @@
                 </div>`;
             }
 
+            // NEW UI PRIMITIVE
+            function FormRadioGroup({ label, name, options, selectedValue, required = false }) {
+                return `
+                <div class="my-3 py-2 border-b border-neutral-700/50">
+                    <label class="block text-sm font-medium text-neutral-300 mb-2">${label}</label>
+                    <div class="flex space-x-6">
+                        ${options.map(opt => `
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="${name}"
+                                value="${opt.value}"
+                                ${opt.value == selectedValue ? 'checked' : ''}
+                                ${required ? 'required' : ''}
+                                class="bg-neutral-900 border-neutral-700 text-blue-500 focus:ring-blue-500"
+                            />
+                            <span class="text-neutral-200">${opt.label}</span>
+                        </label>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+
+
             // --- 5. MODAL COMPONENTS ---
 
             /**
@@ -256,12 +323,13 @@
              * @param {object} props
              * @param {string} props.title - Modal title.
              * @param {string} props.children - Inner HTML content.
+             * @param {string} [props.maxWidth='max-w-lg'] - Tailwind max-width class.
              * @returns {string} HTML string for the modal.
              */
-            function Modal({ title, children }) {
+            function Modal({ title, children, maxWidth = 'max-w-lg' }) {
                 return `
                 <div id="modal-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50" data-action="close-modal">
-                    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl w-full max-w-lg m-4" onclick="event.stopPropagation()">
+                    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl w-full ${maxWidth} m-4" onclick="event.stopPropagation()">
                         <div class="flex justify-between items-center p-4 border-b border-neutral-700">
                             <h2 class="text-xl font-semibold text-neutral-100">${title}</h2>
                             ${Button({
@@ -429,6 +497,45 @@
                     </div>
                 </form>`;
                 return Modal({ title: `Add Note for Goal: ${goalTitle}`, children: content });
+            }
+
+            // NEW MODAL
+            function renderSpdatModal(clientName, clientId) {
+                const radioOptions = [
+                    { label: 'Yes', value: 1 },
+                    { label: 'No', value: 0 },
+                    { label: 'Refused', value: 0 } // Refused/No score the same
+                ];
+
+                const content = `
+                <form data-action="submit-spdat" data-client-id="${clientId}" class="space-y-4">
+                    <div class="max-h-[60vh] overflow-y-auto pr-2 space-y-2">
+                        ${SPDAT_QUESTIONS.map(q => `
+                            ${FormRadioGroup({
+                                label: `(${q.domain}) ${q.text}`,
+                                name: q.id,
+                                options: radioOptions,
+                                selectedValue: 0, // Default to 'No'
+                                required: true
+                            })}
+                        `).join('')}
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-4 border-t border-neutral-700">
+                        <div class="text-neutral-300">Total Score: <span id="spdat-score" class="text-xl font-bold text-white">0</span></div>
+                        <div class="flex space-x-3">
+                            ${Button({ children: "Cancel", type: "button", variant: "secondary", dataAction: "close-modal", disabled: state.isSubmitting })}
+                            ${Button({ 
+                                children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Save Assessment', 
+                                type: "submit", 
+                                variant: "primary", 
+                                disabled: state.isSubmitting 
+                            })}
+                        </div>
+                    </div>
+                </form>`;
+                // Use a wider modal for this form
+                return Modal({ title: `VI-SPDAT for: ${clientName}`, children: content, maxWidth: 'max-w-2xl' });
             }
             
             function renderAlertModal(message) {
@@ -741,6 +848,12 @@
                                     otherAttrs: `data-client-id="${client.id}"`
                                 })
                             }
+                            ${Button({
+                                children: `${IconClipboardList({ className: "w-5 h-5 mr-2" })} Start VI-SPDAT Assessment`,
+                                variant: "secondary",
+                                dataAction: "open-spdat-modal",
+                                otherAttrs: `data-client-id="${client.id}" data-client-name="${client.name}"`
+                            })}
                         </div>
                     </div>
                     
@@ -756,6 +869,11 @@
                             ${InfoItem({ label: "Disabling Condition", value: client.disablingCondition })}
                             ${InfoItem({ label: "Prior Living Situation", value: client.priorLivingSituation })}
                         </div>
+                    </div>
+
+                    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg">
+                        <h2 class="text-xl font-semibold text-neutral-100 p-4 border-b border-neutral-700">Assessments (VI-SPDAT)</h2>
+                        ${renderSpdatHistory(client.viSpdatHistory)}
                     </div>
 
                     <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg">
@@ -908,6 +1026,34 @@
                 </li>`;
             }
 
+            // NEW RENDERER
+            function renderSpdatHistory(history) {
+                if (!history || history.length === 0) {
+                    return `<p class="p-4 text-neutral-400">No assessments found.</p>`;
+                }
+                // Sort descending by date
+                const sortedHistory = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                return `
+                <ul class="divide-y divide-neutral-700 max-h-96 overflow-y-auto">
+                    ${sortedHistory.map(entry => `
+                        <li class="p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-lg font-bold text-blue-300">Score: ${entry.score}</p>
+                                    <p class="font-medium text-neutral-100">${entry.recommendation}</p>
+                                </div>
+                                <p class="text-xs text-neutral-400 text-right">
+                                    ${new Date(entry.date).toLocaleString()}
+                                    <br>
+                                    By: <span class="font-mono">${entry.staffId}</span>
+                                </p>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>`;
+            }
+
             function renderCheckInHistory(history) {
                 if (!history || history.length === 0) {
                     return `<p class="p-4 text-neutral-400">No stay history found.</p>`;
@@ -1005,7 +1151,7 @@
                 render();
 
                 setTimeout(() => { // Simulate network delay
-                    if (username === 'admin' && password === 'xxcoplpp') {
+                    if ((username === 'admin' && password === 'xxcoplpp') || (username === 'john-doe' && password === 'xxcoplpp') || (username === 'casemanager' && password === 'xxcoplpp') || (username === 'jane-doe' && password === 'xxcoplpp')) {
                         state.isAuthenticated = true;
                         state.loggedInUser = username;
                         state.isSubmitting = false;
@@ -1034,6 +1180,7 @@
                     checkInHistory: [],
                     caseNotes: [],
                     goals: [],
+                    viSpdatHistory: [], // <-- ADDED
                     createdAt: now,
                     updatedAt: now,
                     createdBy: state.loggedInUser,
@@ -1217,6 +1364,80 @@
                 render(); // Re-render to show new status
             }
 
+            // NEW SPDAT HANDLER
+            
+            /**
+             * Determines housing recommendation based on score.
+             * @param {number} score - The final VI-SPDAT score.
+             * @returns {string} The recommendation.
+             */
+            function getSpdatRecommendation(score) {
+                if (score >= 8) return "Permanent Supportive Housing (PSH)";
+                if (score >= 4) return "Rapid Re-Housing (RRH)";
+                return "No Housing Intervention / Diversion";
+            }
+        
+            /**
+             * Handles the submission of the VI-SPDAT form.
+             * @param {string} clientId - The ID of the client.
+             * @param {object} formData - The raw form data object.
+             */
+            function handleSubmitSpdat(clientId, formData) {
+                state.isSubmitting = true;
+                const client = state.clients.find(c => c.id === clientId);
+                // Re-render modal to show loader
+                openModal(renderSpdatModal(client.name, clientId)); 
+
+                let totalScore = 0;
+                const answers = {};
+                
+                // Calculate score from form data
+                for (const [key, value] of Object.entries(formData)) {
+                    const question = SPDAT_QUESTIONS.find(q => q.id === key);
+                    if (question) {
+                        // value is '1' (Yes) or '0' (No/Refused)
+                        const answerValue = parseInt(value, 10);
+                        // Add score (e.g., 1 * 1 for Yes, or 0 * 1 for No)
+                        totalScore += (answerValue * question.score);
+                        answers[key] = answerValue; 
+                    }
+                }
+                
+                const recommendation = getSpdatRecommendation(totalScore);
+
+                const newAssessment = {
+                    id: crypto.randomUUID(),
+                    date: new Date().toISOString(),
+                    staffId: state.loggedInUser,
+                    score: totalScore,
+                    recommendation: recommendation,
+                    answers: answers // The raw form data
+                };
+
+                const currentClients = getClients();
+                const clientToUpdate = currentClients.find(c => c.id === clientId);
+                if (!clientToUpdate) {
+                    console.error("Could not find client to update");
+                    state.isSubmitting = false;
+                    closeModal();
+                    return;
+                }
+                
+                if (!Array.isArray(clientToUpdate.viSpdatHistory)) {
+                    clientToUpdate.viSpdatHistory = [];
+                }
+                
+                clientToUpdate.viSpdatHistory.push(newAssessment);
+                clientToUpdate.updatedAt = new Date().toISOString();
+                
+                saveClients(currentClients);
+                
+                state.isSubmitting = false;
+                closeModal();
+                render(); // Re-render client details to show new assessment
+            }
+
+
             // --- 8. EVENT LISTENERS (Event Delegation) ---
             
             const appRoot = document.getElementById('app-root');
@@ -1271,6 +1492,9 @@
                         break;
                     case 'open-add-goal-modal':
                         openModal(renderAddGoalModal(clientName));
+                        break;
+                    case 'open-spdat-modal': // <-- NEW
+                        openModal(renderSpdatModal(clientName, clientId));
                         break;
                     case 'check-in':
                         handleCheckIn(clientId);
@@ -1344,8 +1568,32 @@
                         handleAddCaseNote(clientId, data.note);
                         break;
                     case 'submit-add-goal':
-                        handleAddGoal(clientId, data);
+                        handleAddNewGoal(clientId, data);
                         break;
+                    case 'submit-spdat': // <-- NEW
+                        handleSubmitSpdat(clientId, data);
+                        break;
+                }
+            });
+
+            // NEW: Live score calculator for SPDAT modal
+            modalContainer.addEventListener('input', (e) => {
+                const form = e.target.closest('form[data-action="submit-spdat"]');
+                if (form) {
+                    const formData = new FormData(form);
+                    let totalScore = 0;
+                    for (const [key, value] of formData.entries()) {
+                        // Find the question to get its score value
+                        const question = SPDAT_QUESTIONS.find(q => q.id === key);
+                        if (question) {
+                            // value is '1' (Yes) or '0' (No/Refused)
+                            totalScore += (parseInt(value, 10) * question.score);
+                        }
+                    }
+                    const scoreEl = document.getElementById('spdat-score');
+                    if (scoreEl) {
+                        scoreEl.textContent = totalScore;
+                    }
                 }
             });
 
