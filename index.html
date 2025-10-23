@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,45 +9,30 @@
     <style>
         /* Base styles to match the React app's dark theme */
         body {
-            background-color: #171717; /* bg-neutral-900 */
-            color: #e5e5e5; /* text-neutral-200 */
-            font-family: sans-serif; /* font-sans */
-        }
-        
-        /* Ensure inputs/selects in dark mode are styled correctly by default */
-        select, input[type="text"], input[type="date"], input[type="password"], textarea, input[type="radio"] {
-            -moz-appearance: none;
-            -webkit-appearance: none;
-            appearance: none;
-            background-color: #262626; /* bg-neutral-800 or 900 */
-            border-color: #404040; /* border-neutral-700 */
-            color: #e5e5e5; /* text-neutral-200 */
-        }
-        
-        input[type="radio"] {
-            border-radius: 100%;
-            width: 1.15em;
-            height: 1.15em;
-            border: 1px solid #525252; /* border-neutral-600 */
-            transition: all 0.1s;
-        }
-        
-        input[type="radio"]:checked {
-            background-color: #3b82f6; /* bg-blue-600 */
-            border-color: #3b82f6; /* border-blue-600 */
-            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
-        }
-        
-        input[type="radio"]:focus {
-             box-shadow: 0 0 0 2px #171717, 0 0 0 4px #3b82f6; /* focus:ring-2 focus:ring-offset-2 */
-             outline: none;
+            background-color: #171717;
+            /* bg-neutral-900 */
+            color: #e5e5e5;
+            /* text-neutral-200 */
+            font-family: sans-serif;
+            /* font-sans */
         }
 
+        /* Ensure inputs/selects in dark mode are styled correctly by default */
+        select,
+        input[type="text"],
+        input[type="date"],
+        input[type="password"],
+        textarea {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
     </style>
 </head>
+
 <body>
     <div id="app-root"></div>
-    
+
     <div id="modal-container" class="fixed inset-0 z-50 hidden" data-action="close-modal-backdrop"></div>
 
     <script>
@@ -71,34 +57,16 @@
             const DB_KEY = 'shelterOSClients';
 
             const MOCK_CLIENTS_DATA = [
-              { name: 'John Doe', dob: '1985-04-12', gender: 'Male', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Street Outreach', roomNumber: 'M-101' },
-              { name: 'Jane Smith', dob: '1992-07-21', gender: 'Female', race: 'Black or African American', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-101' },
-              { name: 'Robert Brown', dob: '1978-11-02', gender: 'Male', race: 'White', ethnicity: 'Hispanic or Latino', veteranStatus: 'Yes', disablingCondition: 'Yes', priorLivingSituation: 'Emergency Shelter', roomNumber: 'M-102' },
-              { name: 'Maria Garcia', dob: '1995-01-30', gender: 'Female', race: 'Other', ethnicity: 'Hispanic or Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Place not meant for habitation', roomNumber: 'F-102' },
-              { name: 'Michael Johnson', dob: '1965-09-15', gender: 'Male', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'Yes', disablingCondition: 'No', priorLivingSituation: 'Transitional Housing', roomNumber: 'M-103' },
-              { name: 'Sarah Lee', dob: '2000-03-05', gender: 'Female', race: 'Asian', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-103' },
-              { name: 'David Kim', dob: '1988-06-18', gender: 'Male', race: 'Asian', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Street Outreach', roomNumber: 'M-104' },
-              { name: 'Emily White', dob: '1990-12-24', gender: 'Female', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Emergency Shelter', roomNumber: 'F-104' },
-              { name: 'Daniel Jackson', dob: '1982-02-11', gender: 'Male', race: 'Black or African American', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Other', roomNumber: 'M-105' },
-              { name: 'Olivia Martinez', dob: '1998-08-08', gender: 'Female', race: 'White', ethnicity: 'Hispanic or Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-105' }
-            ];
-
-            // --- VI-SPDAT QUESTIONS (BASIC) ---
-            const SPDAT_QUESTIONS = [
-                { id: 'h1', domain: 'History', text: 'Has been homeless for 12+ months (chronically homeless)?', score: 1 },
-                { id: 'h2', domain: 'History', text: 'Experienced 4+ episodes of homelessness in the last 3 years?', score: 1 },
-                { id: 'h3', domain: 'History', text: 'Is this the first time you\'ve been homeless?', score: 0 }, // Note: 'Yes' here is 0 points
-                { id: 'r1', domain: 'Risks', text: 'At risk of harm in current living situation?', score: 1 },
-                { id: 'r2', domain: 'Risks', text: 'Has been attacked since becoming homeless?', score: 1 },
-                { id: 'r3', domain: 'Risks', text: 'Has had to trade sex for a place to sleep?', score: 1 },
-                { id: 's1', domain: 'Social', text: 'Are you currently in a relationship?', score: 0 },
-                { id: 's2', domain: 'Social', text: 'Do you have any friends or family for support?', score: 0 },
-                { id: 'w1', domain: 'Wellness', text: 'Does client have a serious mental health condition?', score: 1 },
-                { id: 'w2', domain: 'Wellness', text: 'Does client have a physical disability?', score: 1 },
-                { id: 'w3', domain: 'Wellness', text: 'Does client have a substance use issue?', score: 1 },
-                { id: 'w4', domain: 'Wellness', text: 'Has client been to the ER 3+ times in the last 6 months?', score: 1 },
-                { id: 'w5', domain: 'Wellness', text: 'Is client currently pregnant?', score: 1 },
-                { id: 'w6', domain: 'Wellness', text: 'Is client over the age of 60?', score: 1 },
+                { name: 'John Doe', dob: '1985-04-12', gender: 'Male', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Street Outreach', roomNumber: 'M-101' },
+                { name: 'Jane Smith', dob: '1992-07-21', gender: 'Female', race: 'Black or African American', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-101' },
+                { name: 'Robert Brown', dob: '1978-11-02', gender: 'Male', race: 'White', ethnicity: 'Hispanic or Latino', veteranStatus: 'Yes', disablingCondition: 'Yes', priorLivingSituation: 'Emergency Shelter', roomNumber: 'M-102' },
+                { name: 'Maria Garcia', dob: '1995-01-30', gender: 'Female', race: 'Other', ethnicity: 'Hispanic or Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Place not meant for habitation', roomNumber: 'F-102' },
+                { name: 'Michael Johnson', dob: '1965-09-15', gender: 'Male', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'Yes', disablingCondition: 'No', priorLivingSituation: 'Transitional Housing', roomNumber: 'M-103' },
+                { name: 'Sarah Lee', dob: '2000-03-05', gender: 'Female', race: 'Asian', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-103' },
+                { name: 'David Kim', dob: '1988-06-18', gender: 'Male', race: 'Asian', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Street Outreach', roomNumber: 'M-104' },
+                { name: 'Emily White', dob: '1990-12-24', gender: 'Female', race: 'White', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Emergency Shelter', roomNumber: 'F-104' },
+                { name: 'Daniel Jackson', dob: '1982-02-11', gender: 'Male', race: 'Black or African American', ethnicity: 'Non-Hispanic or Non-Latino', veteranStatus: 'No', disablingCondition: 'Yes', priorLivingSituation: 'Other', roomNumber: 'M-105' },
+                { name: 'Olivia Martinez', dob: '1998-08-08', gender: 'Female', race: 'White', ethnicity: 'Hispanic or Latino', veteranStatus: 'No', disablingCondition: 'No', priorLivingSituation: 'Friend or Family', roomNumber: 'F-105' }
             ];
 
             /**
@@ -147,7 +115,6 @@
                         checkInHistory: [],
                         caseNotes: [],
                         goals: [],
-                        viSpdatHistory: [], // <-- ADDED
                         createdAt: now,
                         updatedAt: now,
                         createdBy: username,
@@ -160,7 +127,7 @@
 
             // --- 3. ICON COMPONENTS ---
             // Functions that return SVG strings.
-            
+
             function Icon({ path, className = "w-6 h-6" }) {
                 return `
                 <svg
@@ -190,8 +157,6 @@
             const IconFlag = (props = {}) => Icon({ ...props, path: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" x2="4" y1="22" y2="15" />' });
             const IconChevronDown = (props = {}) => Icon({ ...props, path: '<polyline points="6 9 12 15 18 9" />' });
             const IconChevronRight = (props = {}) => Icon({ ...props, path: '<polyline points="9 18 15 12 9 6" />' });
-            const IconClipboardList = (props = {}) => Icon({ ...props, path: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><line x1="12" x2="12" y1="11" y2="17" /><line x1="9" x2="15" y1="14" y2="14" />' });
-
 
             // --- 4. UI PRIMITIVES (HTML String Functions) ---
 
@@ -210,14 +175,14 @@
              */
             function Button({ children, variant = 'primary', type = 'button', disabled = false, size = 'base', dataAction = '', className = '', otherAttrs = '' }) {
                 const baseStyle = "inline-flex items-center justify-center font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-800 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed";
-                
+
                 const variants = {
                     primary: "bg-blue-600 hover:bg-blue-500 text-white",
                     secondary: "bg-neutral-700 hover:bg-neutral-600 text-neutral-100",
                     danger: "bg-red-600 hover:bg-red-500 text-white",
                     ghost: "bg-transparent hover:bg-neutral-700 text-neutral-300",
                 };
-                
+
                 const sizes = {
                     base: "py-2 px-4 text-sm",
                     icon: "p-2",
@@ -234,7 +199,7 @@
                     ${children}
                 </button>`;
             }
-            
+
             function FormInput({ label, name, type = "text", value = '', placeholder = '', required = false, otherAttrs = '' }) {
                 return `
                 <div>
@@ -263,18 +228,19 @@
                         ${otherAttrs}
                         class="w-full bg-neutral-900 border border-neutral-700 rounded-md p-2 text-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                        ${children.map(option => 
-                            `<option value="${option.value}" ${option.value === value ? 'selected' : ''}>${option.label}</option>`
-                        ).join('')}
+                        ${children.map(option =>
+                    `<option value="${option.value}" ${option.value === value ? 'selected' : ''}>${option.label}</option>`
+                ).join('')}
                     </select>
                 </div>`;
             }
-            
+
             // Helper to generate select options
             function generateOptions(options, selectedValue) {
                 return options.map(opt => ({ value: opt, label: opt, selected: opt === selectedValue })
                 ).map(opt => `<option value="${opt.value}" ${opt.selected ? 'selected' : ''}>${opt.label}</option>`).join('');
             }
+
 
             function FormTextarea({ label, name, value = '', placeholder = '', required = false, rows = 3, otherAttrs = '' }) {
                 return `
@@ -292,30 +258,6 @@
                 </div>`;
             }
 
-            // NEW UI PRIMITIVE
-            function FormRadioGroup({ label, name, options, selectedValue, required = false }) {
-                return `
-                <div class="my-3 py-2 border-b border-neutral-700/50">
-                    <label class="block text-sm font-medium text-neutral-300 mb-2">${label}</label>
-                    <div class="flex space-x-6">
-                        ${options.map(opt => `
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name="${name}"
-                                value="${opt.value}"
-                                ${opt.value == selectedValue ? 'checked' : ''}
-                                ${required ? 'required' : ''}
-                                class="bg-neutral-900 border-neutral-700 text-blue-500 focus:ring-blue-500"
-                            />
-                            <span class="text-neutral-200">${opt.label}</span>
-                        </label>
-                        `).join('')}
-                    </div>
-                </div>`;
-            }
-
-
             // --- 5. MODAL COMPONENTS ---
 
             /**
@@ -323,21 +265,20 @@
              * @param {object} props
              * @param {string} props.title - Modal title.
              * @param {string} props.children - Inner HTML content.
-             * @param {string} [props.maxWidth='max-w-lg'] - Tailwind max-width class.
              * @returns {string} HTML string for the modal.
              */
-            function Modal({ title, children, maxWidth = 'max-w-lg' }) {
+            function Modal({ title, children }) {
                 return `
                 <div id="modal-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50" data-action="close-modal">
-                    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl w-full ${maxWidth} m-4" onclick="event.stopPropagation()">
+                    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl w-full max-w-lg m-4" onclick="event.stopPropagation()">
                         <div class="flex justify-between items-center p-4 border-b border-neutral-700">
                             <h2 class="text-xl font-semibold text-neutral-100">${title}</h2>
                             ${Button({
-                                children: IconX({ className: "w-5 h-5" }),
-                                variant: "ghost",
-                                size: "icon",
-                                dataAction: "close-modal"
-                            })}
+                    children: IconX({ className: "w-5 h-5" }),
+                    variant: "ghost",
+                    size: "icon",
+                    dataAction: "close-modal"
+                })}
                         </div>
                         <div class="p-6">
                             ${children}
@@ -355,191 +296,152 @@
                         ${FormInput({ label: "Assigned Room", name: "roomNumber", placeholder: "e.g., M-101", required: true })}
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        ${FormSelect({ 
-                            label: "Gender", name: "gender", value: "Prefer not to say", 
-                            children: [
-                                { value: "Prefer not to say", label: "Prefer not to say" },
-                                { value: "Female", label: "Female" },
-                                { value: "Male", label: "Male" },
-                                { value: "Transgender", label: "Transgender" },
-                                { value: "Non-binary", label: "Non-binary" },
-                                { value: "Other", label: "Other" },
-                            ]
-                        })}
+                        ${FormSelect({
+                    label: "Gender", name: "gender", value: "Prefer not to say",
+                    children: [
+                        { value: "Prefer not to say", label: "Prefer not to say" },
+                        { value: "Female", label: "Female" },
+                        { value: "Male", label: "Male" },
+                        { value: "Transgender", label: "Transgender" },
+                        { value: "Non-binary", label: "Non-binary" },
+                        { value: "Other", label: "Other" },
+                    ]
+                })}
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        ${FormSelect({ 
-                            label: "Race", name: "race", value: "Prefer not to say",
-                            children: [
-                                { value: "Prefer not to say", label: "Prefer not to say" },
-                                { value: "American Indian or Alaska Native", label: "American Indian or Alaska Native" },
-                                { value: "Asian", label: "Asian" },
-                                { value: "Black or African American", label: "Black or African American" },
-                                { value: "Native Hawaiian or Other Pacific Islander", label: "Native Hawaiian or Other Pacific Islander" },
-                                { value: "White", label: "White" },
-                                { value: "Other", label: "Other" },
-                            ]
-                        })}
-                        ${FormSelect({ 
-                            label: "Ethnicity", name: "ethnicity", value: "Prefer not to say",
-                            children: [
-                                { value: "Prefer not to say", label: "Prefer not to say" },
-                                { value: "Hispanic or Latino", label: "Hispanic or Latino" },
-                                { value: "Non-Hispanic or Non-Latino", label: "Non-Hispanic or Non-Latino" },
-                            ]
-                        })}
+                        ${FormSelect({
+                    label: "Race", name: "race", value: "Prefer not to say",
+                    children: [
+                        { value: "Prefer not to say", label: "Prefer not to say" },
+                        { value: "American Indian or Alaska Native", label: "American Indian or Alaska Native" },
+                        { value: "Asian", label: "Asian" },
+                        { value: "Black or African American", label: "Black or African American" },
+                        { value: "Native Hawaiian or Other Pacific Islander", label: "Native Hawaiian or Other Pacific Islander" },
+                        { value: "White", label: "White" },
+                        { value: "Other", label: "Other" },
+                    ]
+                })}
+                        ${FormSelect({
+                    label: "Ethnicity", name: "ethnicity", value: "Prefer not to say",
+                    children: [
+                        { value: "Prefer not to say", label: "Prefer not to say" },
+                        { value: "Hispanic or Latino", label: "Hispanic or Latino" },
+                        { value: "Non-Hispanic or Non-Latino", label: "Non-Hispanic or Non-Latino" },
+                    ]
+                })}
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        ${FormSelect({ 
-                            label: "Disabling Condition", name: "disablingCondition", value: "No",
-                            children: [
-                                { value: "No", label: "No" },
-                                { value: "Yes", label: "Yes" },
-                                { value: "Prefer not to say", label: "Prefer not to say" },
-                            ]
-                        })}
-                        ${FormSelect({ 
-                            label: "Prior Living Situation", name: "priorLivingSituation", value: "Other",
-                            children: [
-                                { value: "Other", label: "Other" },
-                                { value: "Street Outreach", label: "Street Outreach" },
-                                { value: "Emergency Shelter", label: "Emergency Shelter" },
-                                { value: "Place not meant for habitation", label: "Place not meant for habitation" },
-                                { value: "Transitional Housing", label: "Transitional Housing" },
-                                { value: "Friend or Family", label: "Friend or Family" },
-                            ]
-                        })}
+                        ${FormSelect({
+                    label: "Disabling Condition", name: "disablingCondition", value: "No",
+                    children: [
+                        { value: "No", label: "No" },
+                        { value: "Yes", label: "Yes" },
+                        { value: "Prefer not to say", label: "Prefer not to say" },
+                    ]
+                })}
+                        ${FormSelect({
+                    label: "Prior Living Situation", name: "priorLivingSituation", value: "Other",
+                    children: [
+                        { value: "Other", label: "Other" },
+                        { value: "Street Outreach", label: "Street Outreach" },
+                        { value: "Emergency Shelter", label: "Emergency Shelter" },
+                        { value: "Place not meant for habitation", label: "Place not meant for habitation" },
+                        { value: "Transitional Housing", label: "Transitional Housing" },
+                        { value: "Friend or Family", label: "Friend or Family" },
+                    ]
+                })}
                     </div>
                     <div class="flex justify-end space-x-3 pt-4">
                         ${Button({ children: "Cancel", type: "button", variant: "secondary", dataAction: "close-modal", disabled: state.isSubmitting })}
-                        ${Button({ 
-                            children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Add Client', 
-                            type: "submit", 
-                            variant: "primary", 
-                            disabled: state.isSubmitting 
-                        })}
+                        ${Button({
+                    children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Add Client',
+                    type: "submit",
+                    variant: "primary",
+                    disabled: state.isSubmitting
+                })}
                     </div>
                 </form>`;
                 return Modal({ title: "Add New Client", children: content });
             }
-            
+
             function renderAddNoteModal(clientName) {
                 const content = `
                 <form data-action="submit-add-note" data-client-id="${state.selectedClientId}" class="space-y-4">
-                    ${FormTextarea({ 
-                        label: "Case Note", 
-                        name: "note", 
-                        rows: 5, 
-                        placeholder: "Enter case note details...", 
-                        required: true 
-                    })}
+                    ${FormTextarea({
+                    label: "Case Note",
+                    name: "note",
+                    rows: 5,
+                    placeholder: "Enter case note details...",
+                    required: true
+                })}
                     <div class="flex justify-end space-x-3 pt-4">
                         ${Button({ children: "Cancel", type: "button", variant: "secondary", dataAction: "close-modal", disabled: state.isSubmitting })}
-                        ${Button({ 
-                            children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Save Note', 
-                            type: "submit", 
-                            variant: "primary", 
-                            disabled: state.isSubmitting 
-                        })}
+                        ${Button({
+                    children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Save Note',
+                    type: "submit",
+                    variant: "primary",
+                    disabled: state.isSubmitting
+                })}
                     </div>
                 </form>`;
                 return Modal({ title: `Add Note for: ${clientName}`, children: content });
             }
-            
+
             function renderAddGoalModal(clientName) {
                 const content = `
                 <form data-action="submit-add-goal" data-client-id="${state.selectedClientId}" class="space-y-4">
-                    ${FormInput({ 
-                        label: "Goal Title", 
-                        name: "title", 
-                        placeholder: "e.g., Secure stable housing", 
-                        required: true 
-                    })}
-                    ${FormSelect({ 
-                        label: "Status", name: "status", value: "In Progress",
-                        children: [
-                            { value: "In Progress", label: "In Progress" },
-                            { value: "Completed", label: "Completed" },
-                            { value: "On Hold", label: "On Hold" },
-                        ]
-                    })}
+                    ${FormInput({
+                    label: "Goal Title",
+                    name: "title",
+                    placeholder: "e.g., Secure stable housing",
+                    required: true
+                })}
+                    ${FormSelect({
+                    label: "Status", name: "status", value: "In Progress",
+                    children: [
+                        { value: "In Progress", label: "In Progress" },
+                        { value: "Completed", label: "Completed" },
+                        { value: "On Hold", label: "On Hold" },
+                    ]
+                })}
                     <div class="flex justify-end space-x-3 pt-4">
                         ${Button({ children: "Cancel", type: "button", variant: "secondary", dataAction: "close-modal", disabled: state.isSubmitting })}
-                        ${Button({ 
-                            children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Add Goal', 
-                            type: "submit", 
-                            variant: "primary", 
-                            disabled: state.isSubmitting 
-                        })}
+                        ${Button({
+                    children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Add Goal',
+                    type: "submit",
+                    variant: "primary",
+                    disabled: state.isSubmitting
+                })}
                     </div>
                 </form>`;
                 return Modal({ title: `Add Goal for: ${clientName}`, children: content });
             }
-            
+
             function renderAddGoalNoteModal(clientId, goalId, goalTitle) {
                 const content = `
                 <form data-action="submit-add-goal-note" data-client-id="${clientId}" data-goal-id="${goalId}" class="space-y-4">
-                    ${FormTextarea({ 
-                        label: "Progress Note", 
-                        name: "noteText", 
-                        rows: 3, 
-                        placeholder: "Report progress...", 
-                        required: true 
-                    })}
+                    ${FormTextarea({
+                    label: "Progress Note",
+                    name: "noteText",
+                    rows: 3,
+                    placeholder: "Report progress...",
+                    required: true
+                })}
                     <div class="flex justify-end space-x-3 pt-4">
                         ${Button({ children: "Cancel", type: "button", variant: "secondary", dataAction: "close-modal", disabled: state.isSubmitting })}
-                        ${Button({ 
-                            children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Add Note', 
-                            type: "submit", 
-                            variant: "primary", 
-                            disabled: state.isSubmitting 
-                        })}
+                        ${Button({
+                    children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Add Note',
+                    type: "submit",
+                    variant: "primary",
+                    disabled: state.isSubmitting
+                })}
                     </div>
                 </form>`;
                 return Modal({ title: `Add Note for Goal: ${goalTitle}`, children: content });
             }
 
-            // NEW MODAL
-            function renderSpdatModal(clientName, clientId) {
-                const radioOptions = [
-                    { label: 'Yes', value: 1 },
-                    { label: 'No', value: 0 },
-                    { label: 'Refused', value: 0 } // Refused/No score the same
-                ];
-
-                const content = `
-                <form data-action="submit-spdat" data-client-id="${clientId}" class="space-y-4">
-                    <div class="max-h-[60vh] overflow-y-auto pr-2 space-y-2">
-                        ${SPDAT_QUESTIONS.map(q => `
-                            ${FormRadioGroup({
-                                label: `(${q.domain}) ${q.text}`,
-                                name: q.id,
-                                options: radioOptions,
-                                selectedValue: 0, // Default to 'No'
-                                required: true
-                            })}
-                        `).join('')}
-                    </div>
-                    
-                    <div class="flex justify-between items-center pt-4 border-t border-neutral-700">
-                        <div class="text-neutral-300">Total Score: <span id="spdat-score" class="text-xl font-bold text-white">0</span></div>
-                        <div class="flex space-x-3">
-                            ${Button({ children: "Cancel", type: "button", variant: "secondary", dataAction: "close-modal", disabled: state.isSubmitting })}
-                            ${Button({ 
-                                children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Save Assessment', 
-                                type: "submit", 
-                                variant: "primary", 
-                                disabled: state.isSubmitting 
-                            })}
-                        </div>
-                    </div>
-                </form>`;
-                // Use a wider modal for this form
-                return Modal({ title: `VI-SPDAT for: ${clientName}`, children: content, maxWidth: 'max-w-2xl' });
-            }
-            
             function renderAlertModal(message) {
-                 const content = `
+                const content = `
                     <p class="text-neutral-200 mb-6">${message}</p>
                     <div class="flex justify-end">
                         ${Button({ children: "OK", variant: "primary", dataAction: "close-modal" })}
@@ -557,32 +459,32 @@
                             <h1 class="text-2xl font-bold text-center text-white mb-2">Shelter OS</h1>
                             <p class="text-center text-neutral-400 text-sm">Please sign in to continue</p>
                             
-                            ${FormInput({ 
-                                label: "Username", 
-                                name: "username", 
-                                required: true, 
-                                value: "admin", 
-                                otherAttrs: 'autocomplete="username"' 
-                            })}
+                            ${FormInput({
+                    label: "Username",
+                    name: "username",
+                    required: true,
+                    value: "admin",
+                    otherAttrs: 'autocomplete="username"'
+                })}
                             
-                            ${FormInput({ 
-                                label: "Password", 
-                                name: "password", 
-                                type: "password", 
-                                required: true, 
-                                value: "xxcoplpp", 
-                                otherAttrs: 'autocomplete="current-password"' 
-                            })}
+                            ${FormInput({
+                    label: "Password",
+                    name: "password",
+                    type: "password",
+                    required: true,
+                    value: "xxcoplpp",
+                    otherAttrs: 'autocomplete="current-password"'
+                })}
                             
                             ${state.lastError ? `<p class="text-sm text-red-400 text-center">${state.lastError}</p>` : ''}
                             
-                            ${Button({ 
-                                type: "submit", 
-                                variant: "primary", 
-                                disabled: state.isSubmitting,
-                                className: "w-full",
-                                children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Sign In'
-                            })}
+                            ${Button({
+                    type: "submit",
+                    variant: "primary",
+                    disabled: state.isSubmitting,
+                    className: "w-full",
+                    children: state.isSubmitting ? IconLoader({ className: "w-5 h-5" }) : 'Sign In'
+                })}
                         </form>
                     </div>
                 </div>`;
@@ -590,7 +492,7 @@
 
             function renderMainApp() {
                 const selectedClient = state.clients.find(c => c.id === state.selectedClientId);
-                
+
                 return `
                 <div class="flex h-screen w-full bg-neutral-900 text-neutral-200 font-sans">
                     ${renderSidebar()}
@@ -608,11 +510,10 @@
                     <button
                         data-action="${dataAction}"
                         data-view="${dataView}"
-                        class="flex items-center w-full px-4 py-3 rounded-md text-sm font-medium transition-colors ${
-                            isActive
-                                ? 'bg-blue-600 text-white'
-                                : 'text-neutral-300 hover:bg-neutral-700 hover:text-white'
-                        }"
+                        class="flex items-center w-full px-4 py-3 rounded-md text-sm font-medium transition-colors ${isActive
+                        ? 'bg-blue-600 text-white'
+                        : 'text-neutral-300 hover:bg-neutral-700 hover:text-white'
+                    }"
                     >
                         ${icon}
                         <span class="ml-3">${label}</span>
@@ -622,26 +523,26 @@
                 <nav class="w-64 flex-shrink-0 bg-neutral-800 border-r border-neutral-700 p-4 flex flex-col space-y-2">
                     <h1 class="text-xl font-bold text-white px-2 mb-4">Shelter OS</h1>
                     ${NavButton({
-                        icon: IconHome({ className: "w-5 h-5" }),
-                        label: "Dashboard",
-                        isActive: state.view === 'dashboard',
-                        dataAction: "set-view",
-                        dataView: "dashboard"
-                    })}
+                    icon: IconHome({ className: "w-5 h-5" }),
+                    label: "Dashboard",
+                    isActive: state.view === 'dashboard',
+                    dataAction: "set-view",
+                    dataView: "dashboard"
+                })}
                     ${NavButton({
-                        icon: IconUsers({ className: "w-5 h-s" }),
-                        label: "Clients",
-                        isActive: state.view === 'clients',
-                        dataAction: "set-view",
-                        dataView: "clients"
-                    })}
+                    icon: IconUsers({ className: "w-5 h-s" }),
+                    label: "Clients",
+                    isActive: state.view === 'clients',
+                    dataAction: "set-view",
+                    dataView: "clients"
+                })}
                     <div class="pt-2">
                         ${Button({
-                            children: `${IconUserPlus({ className: "w-5 h-5 mr-2" })} Add New Client`,
-                            variant: "secondary",
-                            className: "w-full",
-                            dataAction: "open-add-client-modal"
-                        })}
+                    children: `${IconUserPlus({ className: "w-5 h-5 mr-2" })} Add New Client`,
+                    variant: "secondary",
+                    className: "w-full",
+                    dataAction: "open-add-client-modal"
+                })}
                     </div>
                 </nav>`;
             }
@@ -693,14 +594,14 @@
                 const checkedOutClients = clients.filter(c => c.status === 'Checked Out');
                 const checkedInCount = checkedInClients.length;
 
-                const filterFn = client => 
+                const filterFn = client =>
                     client.name.toLowerCase().includes(dashboardSearchTerm.toLowerCase()) ||
                     (client.currentRoom && client.currentRoom.toLowerCase().includes(dashboardSearchTerm.toLowerCase())) ||
                     (client.roomNumber && client.roomNumber.toLowerCase().includes(dashboardSearchTerm.toLowerCase()));
 
                 const filteredCheckedInClients = checkedInClients.filter(filterFn);
                 const filteredCheckedOutClients = checkedOutClients.filter(filterFn);
-                
+
                 const StatCard = ({ title, value, icon }) => `
                     <div class="bg-neutral-800 border border-neutral-700 rounded-lg p-6 flex items-center justify-between">
                         <div>
@@ -711,7 +612,7 @@
                             ${icon}
                         </div>
                     </div>`;
-                
+
                 const renderClientListSection = (title, clientList) => `
                     <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg overflow-hidden">
                         <h2 class="text-xl font-semibold text-neutral-100 p-4 border-b border-neutral-700">
@@ -769,10 +670,10 @@
             }
 
             function renderClientList() {
-                const filteredClients = state.clients.filter(client => 
+                const filteredClients = state.clients.filter(client =>
                     client.name.toLowerCase().includes(state.searchTerm.toLowerCase())
                 );
-                
+
                 return `
                 <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg overflow-hidden">
                     <h1 class="text-xl font-semibold text-neutral-100 p-4 border-b border-neutral-700">All Clients (${filteredClients.length})</h1>
@@ -814,46 +715,40 @@
                         <p class="text-sm font-medium text-neutral-400">${label}</p>
                         <p class="text-base text-neutral-100">${value || 'N/A'}</p>
                     </div>`;
-                
+
                 return `
                 <div class="space-y-6">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-4">
                             ${Button({
-                                children: `${IconChevronLeft({ className: "w-5 h-5 mr-1" })} Back`,
-                                variant: "secondary",
-                                dataAction: "deselect-client"
-                            })}
+                    children: `${IconChevronLeft({ className: "w-5 h-5 mr-1" })} Back`,
+                    variant: "secondary",
+                    dataAction: "deselect-client"
+                })}
                             <div>
                                 <h1 class="text-3xl font-bold text-neutral-100">${client.name}</h1>
                                 <p class="text-neutral-400">
                                     ${client.status === 'Checked In'
-                                        ? `Checked In (Room: ${client.currentRoom})`
-                                        : "Checked Out"}
+                        ? `Checked In (Room: ${client.currentRoom})`
+                        : "Checked Out"}
                                 </p>
                             </div>
                         </div>
                         <div class="flex space-x-3">
-                            ${client.status === 'Checked Out' ? 
-                                Button({
-                                    children: `${IconLogIn({ className: "w-5 h-5 mr-2" })} Check In`,
-                                    variant: "primary",
-                                    dataAction: "check-in",
-                                    otherAttrs: `data-client-id="${client.id}"`
-                                }) :
-                                Button({
-                                    children: `${IconLogOut({ className: "w-5 h-5 mr-2" })} Check Out`,
-                                    variant: "danger",
-                                    dataAction: "check-out",
-                                    otherAttrs: `data-client-id="${client.id}"`
-                                })
-                            }
-                            ${Button({
-                                children: `${IconClipboardList({ className: "w-5 h-5 mr-2" })} Start VI-SPDAT Assessment`,
-                                variant: "secondary",
-                                dataAction: "open-spdat-modal",
-                                otherAttrs: `data-client-id="${client.id}" data-client-name="${client.name}"`
-                            })}
+                            ${client.status === 'Checked Out' ?
+                        Button({
+                            children: `${IconLogIn({ className: "w-5 h-5 mr-2" })} Check In`,
+                            variant: "primary",
+                            dataAction: "check-in",
+                            otherAttrs: `data-client-id="${client.id}"`
+                        }) :
+                        Button({
+                            children: `${IconLogOut({ className: "w-5 h-5 mr-2" })} Check Out`,
+                            variant: "danger",
+                            dataAction: "check-out",
+                            otherAttrs: `data-client-id="${client.id}"`
+                        })
+                    }
                         </div>
                     </div>
                     
@@ -872,19 +767,14 @@
                     </div>
 
                     <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg">
-                        <h2 class="text-xl font-semibold text-neutral-100 p-4 border-b border-neutral-700">Assessments (VI-SPDAT)</h2>
-                        ${renderSpdatHistory(client.viSpdatHistory)}
-                    </div>
-
-                    <div class="bg-neutral-800 border border-neutral-700 rounded-lg shadow-lg">
                         <div class="flex justify-between items-center p-4 border-b border-neutral-700">
                             <h2 class="text-xl font-semibold text-neutral-100">Case Notes</h2>
                             ${Button({
-                                children: `${IconFileText({ className: "w-5 h-5 mr-2" })} Add Note`,
-                                variant: "secondary",
-                                dataAction: "open-add-note-modal",
-                                otherAttrs: `data-client-name="${client.name}"`
-                            })}
+                        children: `${IconFileText({ className: "w-5 h-5 mr-2" })} Add Note`,
+                        variant: "secondary",
+                        dataAction: "open-add-note-modal",
+                        otherAttrs: `data-client-name="${client.name}"`
+                    })}
                         </div>
                         ${renderCaseNotesList(client.caseNotes)}
                     </div>
@@ -893,11 +783,11 @@
                         <div class="flex justify-between items-center p-4 border-b border-neutral-700">
                             <h2 class="text-xl font-semibold text-neutral-100">Goals</h2>
                             ${Button({
-                                children: `${IconFlag({ className: "w-5 h-5 mr-2" })} Add Goal`,
-                                variant: "secondary",
-                                dataAction: "open-add-goal-modal",
-                                otherAttrs: `data-client-name="${client.name}"`
-                            })}
+                        children: `${IconFlag({ className: "w-5 h-5 mr-2" })} Add Goal`,
+                        variant: "secondary",
+                        dataAction: "open-add-goal-modal",
+                        otherAttrs: `data-client-name="${client.name}"`
+                    })}
                         </div>
                         ${renderGoalsList(client.goals, client.id)}
                     </div>
@@ -915,7 +805,7 @@
                 }
                 // Sort descending by date
                 const sortedNotes = [...notes].sort((a, b) => new Date(b.date) - new Date(a.date));
-                
+
                 return `
                 <ul class="divide-y divide-neutral-700 max-h-96 overflow-y-auto">
                     ${sortedNotes.map(note => `
@@ -928,30 +818,30 @@
                     `).join('')}
                 </ul>`;
             }
-            
+
             function renderGoalsList(goals, clientId) {
                 if (!goals || goals.length === 0) {
                     return `<p class="p-4 text-neutral-400">No goals set for this client.</p>`;
                 }
                 // Sort by creation date, oldest first
                 const sortedGoals = [...goals].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-                
+
                 return `
                 <ul class="divide-y divide-neutral-700">
                     ${sortedGoals.map(goal => renderGoalItem(goal, clientId)).join('')}
                 </ul>`;
             }
-            
+
             function renderGoalItem(goal, clientId) {
                 const statusColors = {
                     'In Progress': 'text-blue-300 bg-blue-900/50',
                     'Completed': 'text-green-300 bg-green-900/50',
                     'On Hold': 'text-yellow-300 bg-yellow-900/50',
                 };
-                
+
                 // Sort notes descending by date
                 const sortedNotes = (goal.notes || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
+
                 // We need a way to track "isExpanded" without React state.
                 // We can use a data-attribute on the element itself and check it on click.
                 return `
@@ -1014,44 +904,16 @@
                             ></textarea>
                             <div class="flex justify-end">
                                 ${Button({
-                                    children: 'Add Note', 
-                                    type: "submit", 
-                                    variant: "secondary", 
-                                    size: "base",
-                                    disabled: state.isSubmitting
-                                })}
+                    children: 'Add Note',
+                    type: "submit",
+                    variant: "secondary",
+                    size: "base",
+                    disabled: state.isSubmitting
+                })}
                             </div>
                         </form>
                     </div>
                 </li>`;
-            }
-
-            // NEW RENDERER
-            function renderSpdatHistory(history) {
-                if (!history || history.length === 0) {
-                    return `<p class="p-4 text-neutral-400">No assessments found.</p>`;
-                }
-                // Sort descending by date
-                const sortedHistory = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                return `
-                <ul class="divide-y divide-neutral-700 max-h-96 overflow-y-auto">
-                    ${sortedHistory.map(entry => `
-                        <li class="p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-lg font-bold text-blue-300">Score: ${entry.score}</p>
-                                    <p class="font-medium text-neutral-100">${entry.recommendation}</p>
-                                </div>
-                                <p class="text-xs text-neutral-400 text-right">
-                                    ${new Date(entry.date).toLocaleString()}
-                                    <br>
-                                    By: <span class="font-mono">${entry.staffId}</span>
-                                </p>
-                            </div>
-                        </li>
-                    `).join('')}
-                </ul>`;
             }
 
             function renderCheckInHistory(history) {
@@ -1060,7 +922,7 @@
                 }
                 // Sort descending by check-in time
                 const sortedHistory = [...history].sort((a, b) => new Date(b.checkInTime) - new Date(a.checkInTime));
-                
+
                 return `
                 <ul class="divide-y divide-neutral-700 max-h-96 overflow-y-auto">
                     ${sortedHistory.map(entry => `
@@ -1071,9 +933,9 @@
                                 <span class="text-neutral-400 text-xs"> (By: <span class="font-mono">${entry.checkedInBy || 'N/A'}</span>)</span>
                             </p>
                             <p class="text-sm ${entry.checkOutTime ? 'text-red-500' : 'text-green-400'}">
-                                ${entry.checkOutTime 
-                                    ? `Checked Out: ${new Date(entry.checkOutTime).toLocaleString()}` 
-                                    : 'Currently Checked In'}
+                                ${entry.checkOutTime
+                        ? `Checked Out: ${new Date(entry.checkOutTime).toLocaleString()}`
+                        : 'Currently Checked In'}
                                 ${entry.checkOutTime ? `
                                     <span class="text-neutral-400 text-xs"> (By: <span class="font-mono">${entry.checkedOutBy || 'N/A'}</span>)</span>
                                 ` : ''}
@@ -1084,14 +946,14 @@
             }
 
             // --- 7. APPLICATION LOGIC & HANDLERS ---
-            
+
             /**
              * The main render function. Call this after any state change.
              */
             function render() {
                 const appRoot = document.getElementById('app-root');
                 const modalContainer = document.getElementById('modal-container');
-                
+
                 // Save scroll position
                 const activeElement = document.activeElement;
                 const activeElementId = activeElement ? activeElement.id : null;
@@ -1099,7 +961,7 @@
                 document.querySelectorAll('.overflow-y-auto').forEach(el => {
                     scrollPositions[el.id || el.className] = el.scrollTop;
                 });
-                
+
                 // Render main content
                 if (!state.isAuthenticated) {
                     appRoot.innerHTML = renderLoginScreen();
@@ -1110,7 +972,7 @@
                 // Render modals (if any)
                 // This assumes modal state is handled by openModal/closeModal functions
                 // and not by the main `render` function, which is simpler.
-                
+
                 // Restore scroll positions
                 document.querySelectorAll('.overflow-y-auto').forEach(el => {
                     const pos = scrollPositions[el.id || el.className];
@@ -1127,13 +989,13 @@
                     }
                 }
             }
-            
+
             function openModal(html) {
                 const modalContainer = document.getElementById('modal-container');
                 modalContainer.innerHTML = html;
                 modalContainer.classList.remove('hidden');
             }
-            
+
             function closeModal() {
                 const modalContainer = document.getElementById('modal-container');
                 modalContainer.innerHTML = '';
@@ -1151,7 +1013,7 @@
                 render();
 
                 setTimeout(() => { // Simulate network delay
-                    if ((username === 'admin' && password === 'xxcoplpp') || (username === 'john-doe' && password === 'xxcoplpp') || (username === 'casemanager' && password === 'xxcoplpp') || (username === 'jane-doe' && password === 'xxcoplpp')) {
+                    if (username === 'admin' && password === 'xxcoplpp') {
                         state.isAuthenticated = true;
                         state.loggedInUser = username;
                         state.isSubmitting = false;
@@ -1170,7 +1032,7 @@
             function handleAddNewClient(formData) {
                 state.isSubmitting = true;
                 openModal(renderAddClientModal()); // Re-render modal to show loader
-                
+
                 const now = new Date().toISOString();
                 const newClient = {
                     ...formData,
@@ -1180,53 +1042,52 @@
                     checkInHistory: [],
                     caseNotes: [],
                     goals: [],
-                    viSpdatHistory: [], // <-- ADDED
                     createdAt: now,
                     updatedAt: now,
                     createdBy: state.loggedInUser,
                 };
-                
+
                 const currentClients = getClients();
                 currentClients.push(newClient);
                 saveClients(currentClients);
-                
+
                 state.isSubmitting = false;
                 closeModal();
                 render();
             }
-            
+
             function handleCheckIn(clientId) {
                 const currentClients = getClients();
                 const client = currentClients.find(c => c.id === clientId);
                 if (!client) return;
-                
+
                 if (!client.roomNumber) {
                     openModal(renderAlertModal('This client has no assigned room number. Please add one to their profile.'));
                     return;
                 }
-                
+
                 const newCheckIn = {
                     checkInTime: new Date().toISOString(),
                     checkOutTime: null,
                     room: client.roomNumber,
                     checkedInBy: state.loggedInUser,
                 };
-                
+
                 client.status = "Checked In";
                 client.currentRoom = client.roomNumber;
                 client.checkInHistory.push(newCheckIn);
                 client.updatedAt = new Date().toISOString();
-                
+
                 saveClients(currentClients);
                 state.selectedClientId = clientId; // Keep client selected
                 render();
             }
-            
+
             function handleCheckOut(clientId) {
                 const currentClients = getClients();
                 const client = currentClients.find(c => c.id === clientId);
                 if (!client) return;
-                
+
                 // Find the latest active check-in
                 let foundActiveCheckIn = false;
                 for (let i = client.checkInHistory.length - 1; i >= 0; i--) {
@@ -1237,20 +1098,20 @@
                         break;
                     }
                 }
-                
+
                 if (!foundActiveCheckIn) {
                     console.warn(`No active check-in found for client ${client.id} to check out.`);
                 }
-                
+
                 client.status = "Checked Out";
                 client.currentRoom = null;
                 client.updatedAt = new Date().toISOString();
-                
+
                 saveClients(currentClients);
                 state.selectedClientId = clientId; // Keep client selected
                 render();
             }
-            
+
             function handleAddCaseNote(clientId, noteText) {
                 state.isSubmitting = true;
                 const client = state.clients.find(c => c.id === clientId);
@@ -1259,32 +1120,32 @@
                 const currentClients = getClients();
                 const clientToUpdate = currentClients.find(c => c.id === clientId);
                 if (!clientToUpdate) return;
-                
+
                 const newNote = {
                     date: new Date().toISOString(),
                     note: noteText,
                     staffId: state.loggedInUser,
                 };
-                
+
                 clientToUpdate.caseNotes.push(newNote);
                 clientToUpdate.updatedAt = new Date().toISOString();
-                
+
                 saveClients(currentClients);
-                
+
                 state.isSubmitting = false;
                 closeModal();
                 render();
             }
-            
+
             function handleAddNewGoal(clientId, goalData) {
                 state.isSubmitting = true;
                 const client = state.clients.find(c => c.id === clientId);
                 openModal(renderAddGoalModal(client.name)); // Re-render modal
-                
+
                 const currentClients = getClients();
                 const clientToUpdate = currentClients.find(c => c.id === clientId);
                 if (!clientToUpdate) return;
-                
+
                 const newGoal = {
                     id: crypto.randomUUID(),
                     title: goalData.title,
@@ -1293,12 +1154,12 @@
                     createdBy: state.loggedInUser,
                     notes: [],
                 };
-                
+
                 clientToUpdate.goals.push(newGoal);
                 clientToUpdate.updatedAt = new Date().toISOString();
-                
+
                 saveClients(currentClients);
-                
+
                 state.isSubmitting = false;
                 closeModal();
                 render();
@@ -1307,45 +1168,45 @@
             function handleAddGoalNote(clientId, goalId, noteText) {
                 state.isSubmitting = true;
                 render(); // Re-render to show loader on inline button
-                
+
                 const currentClients = getClients();
                 const client = currentClients.find(c => c.id === clientId);
                 if (!client) return;
-                
+
                 const goal = client.goals.find(g => g.id === goalId);
                 if (!goal) return;
-                
+
                 const newNote = {
                     id: crypto.randomUUID(),
                     text: noteText,
                     createdAt: new Date().toISOString(),
                     staffId: state.loggedInUser,
                 };
-                
+
                 if (!Array.isArray(goal.notes)) {
                     goal.notes = [];
                 }
                 goal.notes.push(newNote);
                 client.updatedAt = new Date().toISOString();
-                
+
                 saveClients(currentClients);
-                
+
                 state.isSubmitting = false;
                 render(); // Re-render to show new note
             }
-            
+
             function handleUpdateGoalStatus(clientId, goalId, newStatus) {
                 const currentClients = getClients();
                 const client = currentClients.find(c => c.id === clientId);
                 if (!client) return;
-                
+
                 const goal = client.goals.find(g => g.id === goalId);
                 if (!goal) return;
-                
+
                 if (goal.status === newStatus) return; // No change
-                
+
                 goal.status = newStatus;
-                
+
                 // Add a log note for the status change
                 const newNote = {
                     id: crypto.randomUUID(),
@@ -1353,109 +1214,35 @@
                     createdAt: new Date().toISOString(),
                     staffId: state.loggedInUser,
                 };
-                
+
                 if (!Array.isArray(goal.notes)) {
                     goal.notes = [];
                 }
                 goal.notes.push(newNote);
                 client.updatedAt = new Date().toISOString();
-                
+
                 saveClients(currentClients);
                 render(); // Re-render to show new status
             }
 
-            // NEW SPDAT HANDLER
-            
-            /**
-             * Determines housing recommendation based on score.
-             * @param {number} score - The final VI-SPDAT score.
-             * @returns {string} The recommendation.
-             */
-            function getSpdatRecommendation(score) {
-                if (score >= 8) return "Permanent Supportive Housing (PSH)";
-                if (score >= 4) return "Rapid Re-Housing (RRH)";
-                return "No Housing Intervention / Diversion";
-            }
-        
-            /**
-             * Handles the submission of the VI-SPDAT form.
-             * @param {string} clientId - The ID of the client.
-             * @param {object} formData - The raw form data object.
-             */
-            function handleSubmitSpdat(clientId, formData) {
-                state.isSubmitting = true;
-                const client = state.clients.find(c => c.id === clientId);
-                // Re-render modal to show loader
-                openModal(renderSpdatModal(client.name, clientId)); 
-
-                let totalScore = 0;
-                const answers = {};
-                
-                // Calculate score from form data
-                for (const [key, value] of Object.entries(formData)) {
-                    const question = SPDAT_QUESTIONS.find(q => q.id === key);
-                    if (question) {
-                        // value is '1' (Yes) or '0' (No/Refused)
-                        const answerValue = parseInt(value, 10);
-                        // Add score (e.g., 1 * 1 for Yes, or 0 * 1 for No)
-                        totalScore += (answerValue * question.score);
-                        answers[key] = answerValue; 
-                    }
-                }
-                
-                const recommendation = getSpdatRecommendation(totalScore);
-
-                const newAssessment = {
-                    id: crypto.randomUUID(),
-                    date: new Date().toISOString(),
-                    staffId: state.loggedInUser,
-                    score: totalScore,
-                    recommendation: recommendation,
-                    answers: answers // The raw form data
-                };
-
-                const currentClients = getClients();
-                const clientToUpdate = currentClients.find(c => c.id === clientId);
-                if (!clientToUpdate) {
-                    console.error("Could not find client to update");
-                    state.isSubmitting = false;
-                    closeModal();
-                    return;
-                }
-                
-                if (!Array.isArray(clientToUpdate.viSpdatHistory)) {
-                    clientToUpdate.viSpdatHistory = [];
-                }
-                
-                clientToUpdate.viSpdatHistory.push(newAssessment);
-                clientToUpdate.updatedAt = new Date().toISOString();
-                
-                saveClients(currentClients);
-                
-                state.isSubmitting = false;
-                closeModal();
-                render(); // Re-render client details to show new assessment
-            }
-
-
             // --- 8. EVENT LISTENERS (Event Delegation) ---
-            
+
             const appRoot = document.getElementById('app-root');
             const modalContainer = document.getElementById('modal-container');
 
             // --- Main App Listeners ---
-            
+
             appRoot.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const form = e.target;
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 const action = form.dataset.action;
-                
+
                 if (action === 'login') {
                     handleLogin(data.username, data.password);
                 }
-                
+
                 if (action === 'submit-inline-goal-note') {
                     const clientId = form.dataset.clientId;
                     const goalId = form.dataset.goalId;
@@ -1466,7 +1253,7 @@
             appRoot.addEventListener('click', (e) => {
                 const target = e.target.closest('[data-action]');
                 if (!target) return;
-                
+
                 const { action, clientId, clientName, view, targetId, goalId } = target.dataset;
 
                 switch (action) {
@@ -1493,9 +1280,6 @@
                     case 'open-add-goal-modal':
                         openModal(renderAddGoalModal(clientName));
                         break;
-                    case 'open-spdat-modal': // <-- NEW
-                        openModal(renderSpdatModal(clientName, clientId));
-                        break;
                     case 'check-in':
                         handleCheckIn(clientId);
                         break;
@@ -1512,11 +1296,11 @@
                         break;
                 }
             });
-            
+
             appRoot.addEventListener('input', (e) => {
                 const target = e.target;
                 const action = target.dataset.action;
-                
+
                 if (action === 'search-dashboard') {
                     state.dashboardSearchTerm = target.value;
                     render();
@@ -1526,11 +1310,11 @@
                     render();
                 }
             });
-            
+
             appRoot.addEventListener('change', (e) => {
                 const target = e.target;
                 const action = target.dataset.action;
-                
+
                 if (action === 'update-goal-status') {
                     const { clientId, goalId } = target.dataset;
                     const newStatus = target.value;
@@ -1539,19 +1323,30 @@
             });
 
             // --- Modal Listeners ---
-            
+
             modalContainer.addEventListener('click', (e) => {
-                const target = e.target.closest('[data-action]');
-                // Close modal if backdrop or a close button is clicked
-                if (target && (target.dataset.action === 'close-modal' || target.dataset.action === 'close-modal-backdrop')) {
-                     // Check if the click was on the backdrop itself, not a child
-                    if(target.dataset.action === 'close-modal-backdrop' && target.id !== 'modal-backdrop') {
-                        return;
+                const actionTarget = e.target.closest('[data-action]');
+                if (!actionTarget) return; // Not an actionable item
+
+                const action = actionTarget.dataset.action;
+
+                if (action === 'close-modal' || action === 'close-modal-backdrop') {
+                    // Check if the click was on a backdrop (the container or the inner backdrop)
+                    if (actionTarget.id === 'modal-backdrop' || actionTarget.id === 'modal-container') {
+                        // If so, only close if the *original* click was on the backdrop,
+                        // not on a child element (like the modal content) bubbling up.
+                        if (e.target !== actionTarget) {
+                            return; // Click was on content, bubbled to backdrop. Don't close.
+                        }
                     }
+
+                    // If we're here, the click was either:
+                    // 1. A direct click on the backdrop.
+                    // 2. A click on a button (like "X" or "Cancel").
                     closeModal();
                 }
             });
-            
+
             modalContainer.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const form = e.target;
@@ -1568,32 +1363,8 @@
                         handleAddCaseNote(clientId, data.note);
                         break;
                     case 'submit-add-goal':
-                        handleAddNewGoal(clientId, data);
+                        handleAddGoal(clientId, data);
                         break;
-                    case 'submit-spdat': // <-- NEW
-                        handleSubmitSpdat(clientId, data);
-                        break;
-                }
-            });
-
-            // NEW: Live score calculator for SPDAT modal
-            modalContainer.addEventListener('input', (e) => {
-                const form = e.target.closest('form[data-action="submit-spdat"]');
-                if (form) {
-                    const formData = new FormData(form);
-                    let totalScore = 0;
-                    for (const [key, value] of formData.entries()) {
-                        // Find the question to get its score value
-                        const question = SPDAT_QUESTIONS.find(q => q.id === key);
-                        if (question) {
-                            // value is '1' (Yes) or '0' (No/Refused)
-                            totalScore += (parseInt(value, 10) * question.score);
-                        }
-                    }
-                    const scoreEl = document.getElementById('spdat-score');
-                    if (scoreEl) {
-                        scoreEl.textContent = totalScore;
-                    }
                 }
             });
 
@@ -1605,4 +1376,5 @@
         });
     </script>
 </body>
+
 </html>
